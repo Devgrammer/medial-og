@@ -5,7 +5,7 @@ const PostPage = ({ post }) => {
 
   useEffect(() => {
     // Construct the URL for the og:image
-    const url = `https://your-netlify-site.netlify.app/.netlify/functions/generate-og-image?title=${encodeURIComponent(
+    const url = `https://comforting-genie-7cab99.netlify.app/.netlify/functions/generate-og-image?title=${encodeURIComponent(
       post.title
     )}&content=${encodeURIComponent(post.content)}&image=${encodeURIComponent(
       post.image || ""
@@ -14,7 +14,7 @@ const PostPage = ({ post }) => {
     setOgImageUrl(url);
   }, [post]);
 
-  // Update the document head with the OG image URL
+
   useEffect(() => {
     if (ogImageUrl) {
       const metaTag = document.querySelector('meta[property="og:image"]');
@@ -31,9 +31,9 @@ const PostPage = ({ post }) => {
 
   return (
     <div>
-      <h1>{post.title}</h1>
-      <p>{post.content}</p>
-      {post.image && <img src={post.image} alt="Post Image" />}
+      <h1>{post?.title}</h1>
+      <p>{post?.content}</p>
+      {post?.image && <img src={post?.image} alt="Post Image" />}
     </div>
   );
 };
