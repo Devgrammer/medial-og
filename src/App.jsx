@@ -6,7 +6,8 @@ const App = () => {
   const post = {
     title: "Sample Post Title",
     content: "This is a snippet of the post content that will be displayed.",
-    image: "https://example.com/sample-image.jpg", // Optional
+    image:
+      "https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg",
   };
 
   return (
