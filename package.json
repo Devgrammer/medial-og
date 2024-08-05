@@ -12,7 +12,7 @@
   "dependencies": {
     "chrome-aws-lambda": "^10.1.0",
     "puppeteer": "^22.15.0",
-    "puppeteer-core": "^10.1.0",
+    "puppeteer-core": "^10.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
