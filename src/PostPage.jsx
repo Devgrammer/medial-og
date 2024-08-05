@@ -1,57 +1,96 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-const PostPage = ({ post }) => {
-  const [ogImageUrl, setOgImageUrl] = useState("");
+const PostPage = () => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState("");
+  const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchOgImageUrl = async () => {
-      try {
-        const response = await fetch(
-          `https://comforting-genie-7cab99.netlify.app/.netlify/functions/generate-og-image`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title: post.title,
-              content: post.content,
-              image: post.image || "",
-            }),
-          }
-        );
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
 
-        if (response.ok) {
-          const { url } = await response.json();
-          setOgImageUrl(url);
-        } else {
-          console.error("Error fetching OG image URL:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
+    const postData = {
+      title,
+      content,
+      image,
     };
 
-    fetchOgImageUrl();
-  }, [post]);
+    try {
+      const response = await fetch(
+        "https://comforting-genie-7cab99.netlify.app/.netlify/functions/generate-og-image",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(postData),
+        }
+      );
 
-  useEffect(() => {
-    if (ogImageUrl) {
-      const metaTag = document.querySelector('meta[property="og:image"]');
-      if (metaTag) {
-        metaTag.setAttribute("content", ogImageUrl);
-      } else {
-        const newMetaTag = document.createElement("meta");
-        newMetaTag.setAttribute("property", "og:image");
-        newMetaTag.setAttribute("content", ogImageUrl);
-        document.head.appendChild(newMetaTag);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
+
+      const imageBlob = await response.blob();
+      const imageUrl = URL.createObjectURL(imageBlob);
+      setGeneratedImageUrl(imageUrl);
+    } catch (error) {
+      setError("Error generating OG image: " + error.message);
+    } finally {
+      setLoading(false);
     }
-  }, [ogImageUrl]);
+  };
 
   return (
     <div>
-      <h1>{post.title}</h1>
-      <p>{post.content}</p>
-      {post.image && <img src={post.image} alt="Post Image" />}
+      <h1>Create a Post</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>
+            Title:
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Content:
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Image URL (optional):
+            <input
+              type="text"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+            />
+          </label>
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? "Generating..." : "Generate OG Image"}
+        </button>
+      </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {generatedImageUrl && (
+        <div>
+          <h2>Generated OG Image:</h2>
+          <img src={generatedImageUrl} alt="Generated OG" />
+        </div>
+      )}
     </div>
   );
 };
