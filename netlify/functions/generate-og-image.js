@@ -1,22 +1,38 @@
 const puppeteer = require('puppeteer');
 
 exports.handler = async function (event, context) {
+    if (event.httpMethod === 'OPTIONS') {
+        // Handle CORS preflight request
+        return {
+            statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            },
+        };
+    }
+
     try {
-        // Check if body is empty
         if (!event.body) {
             return {
                 statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*', // Allow all origins
+                },
                 body: JSON.stringify({ error: 'No data provided' }),
             };
         }
 
-        // Parse JSON body
         let data;
         try {
             data = JSON.parse(event.body);
         } catch (e) {
             return {
                 statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*', // Allow all origins
+                },
                 body: JSON.stringify({ error: 'Invalid JSON format' }),
             };
         }
@@ -26,6 +42,9 @@ exports.handler = async function (event, context) {
         if (!title || !content) {
             return {
                 statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*', // Allow all origins
+                },
                 body: JSON.stringify({ error: 'Title and content are required' }),
             };
         }
@@ -51,6 +70,7 @@ exports.handler = async function (event, context) {
             headers: {
                 'Content-Type': 'image/png',
                 'Cache-Control': 'max-age=3600',
+                'Access-Control-Allow-Origin': '*', // Allow all origins
             },
             body: imageBuffer.toString('base64'),
             isBase64Encoded: true,
@@ -59,6 +79,9 @@ exports.handler = async function (event, context) {
         console.error('Error generating OG image:', error);
         return {
             statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*', // Allow all origins
+            },
             body: JSON.stringify({ error: 'Internal server error' }),
         };
     }
