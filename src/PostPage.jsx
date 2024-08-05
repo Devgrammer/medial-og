@@ -32,13 +32,15 @@ const PostPage = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const errorText = await response.text();
+        throw new Error(`Network response was not ok: ${errorText}`);
       }
 
       const imageBlob = await response.blob();
       const imageUrl = URL.createObjectURL(imageBlob);
       setGeneratedImageUrl(imageUrl);
     } catch (error) {
+      console.error("Error generating OG image:", error);
       setError("Error generating OG image: " + error.message);
     } finally {
       setLoading(false);

@@ -3,7 +3,6 @@ const puppeteer = require('puppeteer-core');
 
 exports.handler = async function (event, context) {
     if (event.httpMethod === 'OPTIONS') {
-        // Handle CORS preflight request
         return {
             statusCode: 200,
             headers: {
@@ -19,7 +18,7 @@ exports.handler = async function (event, context) {
             return {
                 statusCode: 400,
                 headers: {
-                    'Access-Control-Allow-Origin': '*', // Allow all origins
+                    'Access-Control-Allow-Origin': '*',
                 },
                 body: JSON.stringify({ error: 'No data provided' }),
             };
@@ -29,10 +28,11 @@ exports.handler = async function (event, context) {
         try {
             data = JSON.parse(event.body);
         } catch (e) {
+            console.error('Invalid JSON format:', e);
             return {
                 statusCode: 400,
                 headers: {
-                    'Access-Control-Allow-Origin': '*', // Allow all origins
+                    'Access-Control-Allow-Origin': '*',
                 },
                 body: JSON.stringify({ error: 'Invalid JSON format' }),
             };
@@ -44,7 +44,7 @@ exports.handler = async function (event, context) {
             return {
                 statusCode: 400,
                 headers: {
-                    'Access-Control-Allow-Origin': '*', // Allow all origins
+                    'Access-Control-Allow-Origin': '*',
                 },
                 body: JSON.stringify({ error: 'Title and content are required' }),
             };
@@ -55,6 +55,7 @@ exports.handler = async function (event, context) {
             executablePath: await chromium.executablePath,
             headless: chromium.headless,
         });
+
         const page = await browser.newPage();
 
         await page.setContent(`
@@ -75,7 +76,7 @@ exports.handler = async function (event, context) {
             headers: {
                 'Content-Type': 'image/png',
                 'Cache-Control': 'max-age=3600',
-                'Access-Control-Allow-Origin': '*', // Allow all origins
+                'Access-Control-Allow-Origin': '*',
             },
             body: imageBuffer.toString('base64'),
             isBase64Encoded: true,
@@ -85,9 +86,9 @@ exports.handler = async function (event, context) {
         return {
             statusCode: 500,
             headers: {
-                'Access-Control-Allow-Origin': '*', // Allow all origins
+                'Access-Control-Allow-Origin': '*',
             },
-            body: JSON.stringify({ error: 'Internal server error' }),
+            body: JSON.stringify({ error: 'Internal server error', details: error.message }),
         };
     }
 };
